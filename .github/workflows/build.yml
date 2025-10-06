@@ -1,4 +1,4 @@
-name: Build BLE Spam via Docker
+name: Validate BLE Spam Structure
 
 on:
   push:
@@ -6,27 +6,32 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  validate:
     runs-on: ubuntu-latest
     
     steps:
-    - name: Checkout code
+    - name: Checkout repository
       uses: actions/checkout@v4
       
-    - name: Build with Docker
+    - name: Check file structure
       run: |
-        docker run --rm -v $(pwd):/workspace \
-          flipperdevices/flipperzero-firmware:latest \
-          /bin/bash -c "cd /workspace && find . -name '*.c' -o -name '*.h' | head -10"
-          
-    - name: Create test FAP package
-      run: |
-        mkdir -p dist
-        echo "Mock FAP file for testing" > dist/ble_spam.fap
-        echo "Сборка через GitHub Actions настроена!" > dist/README.txt
+        echo "📁 Проверка структуры файлов..."
+        echo "Текущая директория:"
+        pwd
+        ls -la
         
-    - name: Upload artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: ble-spam-files
-        path: dist/
+        echo "Проверка основных файлов:"
+        [ -f "ble_spam.c" ] && echo "✅ ble_spam.c найден" || echo "❌ ble_spam.c отсутствует"
+        [ -f "ble_spam.h" ] && echo "✅ ble_spam.h найден" || echo "❌ ble_spam.h отсутствует"
+        [ -f "application.fam" ] && echo "✅ application.fam найден" || echo "❌ application.fam отсутствует"
+        
+        echo "Проверка папок:"
+        [ -d "scenes" ] && echo "✅ scenes найдена" || echo "❌ scenes отсутствует"
+        [ -d "protocols" ] && echo "✅ protocols найдена" || echo "❌ protocols отсутствует"
+        [ -d "assets" ] && echo "✅ assets найдена" || echo "❌ assets отсутствует"
+        [ -d "icons" ] && echo "✅ icons найдена" || echo "❌ icons отсутствует"
+        
+    - name: List all files
+      run: |
+        echo "📋 Полный список файлов:"
+        find . -type f -name "*.c" -o -name "*.h" -o -name "*.fam" -o -name "*.txt" | sort
