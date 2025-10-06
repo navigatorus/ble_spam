@@ -1,30 +1,62 @@
-name: Test Compilation
+name: Build BLE Spam Application
 
 on:
+  push:
+    branches: [ main ]
   workflow_dispatch:
 
 jobs:
-  test:
+  build:
     runs-on: ubuntu-latest
     
     steps:
-    - name: Checkout
+    - name: Checkout BLE Spam
       uses: actions/checkout@v4
       
-    - name: Test C compilation
+    - name: Clone Official Firmware
       run: |
-        echo "🔧 Тест компиляции C файлов..."
-        # Проверяем синтаксис основных файлов
-        gcc -c -I. ble_spam.c -o /tmp/ble_spam.o 2>&1 | head -20 || echo "Компиляция завершена с предупреждениями"
-        gcc -c -I. scenes/main.c -o /tmp/main.o 2>&1 | head -20 || echo "Компиляция завершена с предупреждениями"
-        echo "✅ Базовые проверки синтаксиса пройдены"
+        git clone --recursive --depth=1 https://github.com/flipperdevices/flipperzero-firmware.git
+        cd flipperzero-firmware
+        # Используем ветку dev вместо release
+        git checkout dev
         
-    - name: Check application.fam
+    - name: Install dependencies
       run: |
-        echo "📋 Проверка application.fam:"
-        cat application.fam
-        if grep -q "ble_spam" application.fam; then
-          echo "✅ application.fam содержит ble_spam"
-        else
-          echo "❌ application.fam не содержит ble_spam"
-        fi
+        sudo apt-get update
+        sudo apt-get install -y git wget python3 python3-pip cmake build-essential libusb-1.0-0-dev
+        cd flipperzero-firmware
+        pip3 install -r requirements.txt
+        
+    - name: Copy BLE Spam to applications
+      run: |
+        # Создаем папку для приложения
+        mkdir -p flipperzero-firmware/applications/ble_spam
+        
+        # Копируем все файлы BLE Spam
+        cp -r assets scenes protocols icons flipperzero-firmware/applications/ble_spam/
+        cp ble_spam.c ble_spam.h application.fam ble_spam_10px.png LICENSE.txt flipperzero-firmware/applications/ble_spam/
+        
+        # Проверяем структуру
+        echo "📁 Структура приложения:"
+        find flipperzero-firmware/applications/ble_spam -name "*.c" -o -name "*.h" | head -10
+        
+    - name: Build BLE Spam FAP
+      run: |
+        cd flipperzero-firmware
+        ./fbt fap_ble_spam
+        
+    - name: Find and upload FAP
+      run: |
+        cd flipperzero-firmware
+        echo "🔍 Поиск FAP файлов:"
+        find . -name "*.fap" -type f | head -10
+        find . -name "ble_spam.fap" -type f
+        
+    - name: Upload FAP artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ble-spam-fap
+        path: |
+          flipperzero-firmware/build/f7-firmware-D/.extapps/ble_spam.fap
+          flipperzero-firmware/dist/f7-C/faps/ble_spam.fap
+        if-no-files-found: warn
