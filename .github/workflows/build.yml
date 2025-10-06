@@ -1,45 +1,29 @@
-name: Build BLE Spam FAP
+name: Check BLE Spam Compatibility
 
 on:
-  push:
-    branches: [ main ]
   workflow_dispatch:
 
 jobs:
-  build-fap:
+  check:
     runs-on: ubuntu-latest
     
     steps:
-    - name: Checkout BLE Spam
+    - name: Checkout
       uses: actions/checkout@v4
       
-    - name: Set up Flipper environment
-      uses: flipperdevices/flipperzero-firmware-action@v1
-      env:
-        FLIPPER_FIRMWARE: "https://github.com/Flipper-XFW/xfw.git"
-        FLIPPER_BRANCH: "dev"
-        
-    - name: Build FAP
+    - name: Analyze dependencies
       run: |
-        # Создаем временную структуру
-        mkdir -p /tmp/fap_build/applications/ble_spam
-        cp -r . /tmp/fap_build/applications/ble_spam/
+        echo "🔍 Анализ зависимостей BLE Spam:"
         
-        # Собираем через официальный инструмент
-        cd /tmp/fap_build
-        echo "Сборка BLE Spam..."
-        find applications/ble_spam -name "*.c" | head -5
+        # Проверяем необходимые заголовки
+        echo "Заголовочные файлы в коде:"
+        grep -h "#include" *.c scenes/*.c protocols/*.c | sort | uniq | head -20
         
-    - name: Create dummy FAP for testing
-      run: |
-        mkdir -p dist
-        echo "This is a placeholder FAP file" > dist/ble_spam.fap
-        echo "Actual compilation requires full Flipper toolchain" > dist/README.txt
-        echo "FAP Version: 1.0" >> dist/ble_spam.fap
-        echo "App Name: BLE Spam" >> dist/ble_spam.fap
+        echo ""
+        echo "Проблемные заголовки:"
+        grep -h "#include" *.c scenes/*.c protocols/*.c | grep -v "ble_spam" | grep -v "furi" | sort | uniq
         
-    - name: Upload placeholder FAP
-      uses: actions/upload-artifact@v4
-      with:
-        name: ble-spam-placeholder
-        path: dist/
+        echo ""
+        echo "Рекомендация:"
+        echo "Это приложение требует Xtreme Firmware для сборки"
+        echo "Используйте прошивку с поддержкой BLE Spam"
