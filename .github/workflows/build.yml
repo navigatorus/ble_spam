@@ -1,0 +1,65 @@
+name: Build BLE Spam for Flipper Zero
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:  # Позволяет запускать вручную
+
+jobs:
+  build-ble-spam:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        path: 'ble_spam_source'
+        
+    - name: Clone Xtreme Firmware
+      run: |
+        git clone --recursive https://github.com/Flipper-XFW/xfw.git
+        cd xfw
+        git checkout dev  # Используем ветку dev
+        
+    - name: Copy BLE Spam to firmware
+      run: |
+        # Копируем ваше приложение в прошивку
+        cp -r ble_spam_source xfw/applications/ble_spam
+        
+        # Проверяем что файлы на месте
+        ls -la xfw/applications/ble_spam/
+        
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+        
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y git wget python3-pip cmake build-essential
+        cd xfw
+        ./fbt --help  # Это установит необходимые инструменты
+        
+    - name: Build BLE Spam application
+      run: |
+        cd xfw
+        ./fbt firmware_ble_spam
+        echo "✅ Сборка завершена!"
+        
+    - name: List build artifacts
+      run: |
+        cd xfw
+        find build -name "*.fap" | head -10
+        find build -name "*ble_spam*" -type f
+        
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: ble-spam-firmware
+        path: |
+          xfw/build/f7-firmware-D/.extapps/ble_spam.fap
+          xfw/build/f7-firmware-D/.bin/
+        retention-days: 30
