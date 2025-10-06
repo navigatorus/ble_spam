@@ -1,64 +1,38 @@
-name: Build BLE Spam with Unleashed
+name: Build BLE Spam
 
-on:
-  push:
-    branches: [ main ]
-  workflow_dispatch:
+on: [push, workflow_dispatch]
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    
     steps:
-    - name: Checkout BLE Spam
+    - name: Checkout code
       uses: actions/checkout@v4
       
-    - name: Clone Unleashed Firmware
+    - name: Build with Docker
       run: |
-        git clone --recursive --depth=1 https://github.com/DarkFlippers/unleashed-firmware.git
-        cd unleashed-firmware
-        git checkout dev
+        # Клонируем прошивку
+        git clone --recursive https://github.com/flipperdevices/flipperzero-firmware.git
+        cd flipperzero-firmware
         
-    - name: Install dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y git wget python3 python3-pip cmake build-essential libusb-1.0-0-dev
-        cd unleashed-firmware
-        # Устанавливаем зависимости вручную
-        pip3 install protobuf pyelftools ansi
+        # Копируем наше приложение в applications_user (для пользовательских приложений)
+        mkdir -p applications_user
+        cp -r ../ble_spam applications_user/
         
-    - name: Copy and adapt BLE Spam
-      run: |
-        # Создаем папку для приложения
-        mkdir -p unleashed-firmware/applications_user/ble_spam
+        echo "=== Files structure ==="
+        ls -la applications_user/ble_spam/
+        echo "=== Checking key files ==="
+        find applications_user/ble_spam -name "*.c" -o -name "*.h" -o -name "*.fam" | head -10
         
-        # Копируем файлы
-        cp -r assets scenes protocols icons unleashed-firmware/applications_user/ble_spam/
-        cp ble_spam.c ble_spam.h application.fam ble_spam_10px.png LICENSE.txt unleashed-firmware/applications_user/ble_spam/
-        
-        # Создаем упрощенный application.fam для Unleashed
-        cat > unleashed-firmware/applications_user/ble_spam/application.fam << 'EOF'
-App(
-    appid="ble_spam",
-    name="BLE Spam",
-    apptype=FlipperAppType.EXTERNAL,
-    entry_point="ble_spam_app",
-    stack_size=2*1024,
-    icon="ble_spam_10px.png",
-)
-EOF
-        
-        echo "📁 Структура:"
-        ls -la unleashed-firmware/applications_user/ble_spam/
-        
-    - name: Build BLE Spam
-      run: |
-        cd unleashed-firmware
+        # Устанавливаем зависимости и компилируем
         ./fbt fap_ble_spam
+        
+        echo "=== Build results ==="
+        find . -name "ble_spam.fap" -type f
+        find . -name "*.fap" -type f | head -10
         
     - name: Upload FAP
       uses: actions/upload-artifact@v4
       with:
-        name: ble-spam-unleashed
-        path: unleashed-firmware/dist/f7-C/faps/ble_spam.fap
-        if-no-files-found: warn
+        name: ble-spam-app
+        path: flipperzero-firmware/dist/f7-C/faps/ble_spam.fap
