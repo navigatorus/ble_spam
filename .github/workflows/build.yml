@@ -1,51 +1,37 @@
-name: Build BLE Spam Debug
+name: Build BLE Spam
 
-on: [workflow_dispatch]
+on: [push, workflow_dispatch]
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    
     steps:
     - name: Checkout BLE Spam
       uses: actions/checkout@v4
       
-    - name: Clone and setup firmware
+    - name: Clone Unleashed Firmware
       run: |
-        git clone --recursive https://github.com/flipperdevices/flipperzero-firmware.git
-        cd flipperzero-firmware
-        git checkout 0.98.1
+        git clone https://github.com/DarkFlippers/unleashed-firmware.git
+        cd unleashed-firmware
         
-    - name: Copy and verify files
+    - name: Copy BLE Spam files
       run: |
-        cd flipperzero-firmware
-        mkdir -p applications_user/ble_spam
+        cd unleashed-firmware
+        mkdir -p applications/ble_spam
+        cp -r ../assets ../scenes ../protocols ../icons applications/ble_spam/
+        cp ../*.c ../*.h ../*.fam ../*.png ../LICENSE.txt applications/ble_spam/
         
-        # Копируем только нужные файлы
-        cp -r ../assets ../scenes ../protocols ../icons applications_user/ble_spam/
-        cp ../ble_spam.c ../ble_spam.h ../application.fam ../ble_spam_10px.png ../LICENSE.txt applications_user/ble_spam/
+        echo "=== Files copied ==="
+        ls -la applications/ble_spam/
         
-        echo "✅ Файлы скопированы"
-        echo "📁 Проверка структуры:"
-        find applications_user/ble_spam -type f -name "*.c" -o -name "*.h" -o -name "*.fam" | sort
-        
-    - name: Try to build
+    - name: Build FAP
       run: |
-        cd flipperzero-firmware
-        echo "🛠️ Попытка сборки..."
-        ./fbt fap_ble_spam || echo "❌ Сборка не удалась, продолжаем..."
+        cd unleashed-firmware
+        ./fbt fap_ble_spam
         
-    - name: Check what was built
-      run: |
-        cd flipperzero-firmware
-        echo "📊 Результаты:"
-        find . -name "*.fap" -type f 2>/dev/null | head -10 || echo "FAP файлы не найдены"
-        ls -la dist/f7-C/faps/ 2>/dev/null || echo "Папка faps не существует"
-        
-    - name: Upload whatever was created
+    - name: Upload FAP
       uses: actions/upload-artifact@v4
       with:
-        name: ble-spam-debug
-        path: |
-          flipperzero-firmware/dist/
-          flipperzero-firmware/build/
-        if-no-files-found: warn
+        name: ble-spam-fap
+        path: unleashed-firmware/dist/f7-C/faps/ble_spam.fap
