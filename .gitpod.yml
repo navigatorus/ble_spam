@@ -1,0 +1,14 @@
+image: gitpod/workspace-full
+
+tasks:
+  - name: Setup Flipper Build Environment
+    init: |
+      sudo apt update
+      sudo apt install -y git wget python3 python3-pip cmake build-essential libusb-1.0-0-dev libncurses5-dev srecord libssl-dev
+    command: |
+      echo "=== Установка завершена ==="
+      echo "Для сборки выполните:"
+      echo "git clone https://github.com/DarkFlippers/unleashed-firmware.git"
+      echo "cd unleashed-firmware"
+      echo "cp -r /workspace/ble_spam applications/ble_spam"
+      echo "./fbt fap_ble_spam"
