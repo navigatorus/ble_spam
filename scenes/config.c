@@ -41,7 +41,7 @@ void scene_config_on_enter(void* _ctx) {
     Ctx* ctx = _ctx;
     VariableItemList* list = ctx->variable_item_list;
 
-    variable_item_list_set_header(list, ctx->attack->title); // Устарело
+    //variable_item_list_set_header(list, ctx->attack->title); // Устарело
 
     config_bool(list, "Random MAC", &ctx->attack->payload.random_mac);
 
