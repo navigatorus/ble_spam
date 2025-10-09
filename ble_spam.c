@@ -309,7 +309,8 @@ static void draw_callback(Canvas* canvas, void* _ctx) {
 
     switch(state->index) {
     case PageHelpBruteforce:
-        canvas_set_font(canvas, FontBatteryPercent);
+        //canvas_set_font(canvas, FontBatteryPercent);
+        canvas_set_font(canvas, FontSecondary);  // FontBatteryPercent -> FontSecondary
         canvas_draw_str_aligned(canvas, 124, 12, AlignRight, AlignBottom, "Help");
         elements_text_box(
             canvas,
@@ -326,7 +327,8 @@ static void draw_callback(Canvas* canvas, void* _ctx) {
             false);
         break;
     case PageHelpApps:
-        canvas_set_font(canvas, FontBatteryPercent);
+        //canvas_set_font(canvas, FontBatteryPercent);
+        canvas_set_font(canvas, FontSecondary);  // FontBatteryPercent -> FontSecondary
         canvas_draw_str_aligned(canvas, 124, 12, AlignRight, AlignBottom, "Help");
         elements_text_box(
             canvas,
@@ -342,7 +344,8 @@ static void draw_callback(Canvas* canvas, void* _ctx) {
             false);
         break;
     case PageHelpDelay:
-        canvas_set_font(canvas, FontBatteryPercent);
+        //canvas_set_font(canvas, FontBatteryPercent);
+        canvas_set_font(canvas, FontSecondary);  // FontBatteryPercent -> FontSecondary
         canvas_draw_str_aligned(canvas, 124, 12, AlignRight, AlignBottom, "Help");
         elements_text_box(
             canvas,
@@ -358,7 +361,8 @@ static void draw_callback(Canvas* canvas, void* _ctx) {
             false);
         break;
     case PageHelpDistance:
-        canvas_set_font(canvas, FontBatteryPercent);
+        //canvas_set_font(canvas, FontBatteryPercent);
+        canvas_set_font(canvas, FontSecondary);  // FontBatteryPercent -> FontSecondary
         canvas_draw_str_aligned(canvas, 124, 12, AlignRight, AlignBottom, "Help");
         elements_text_box(
             canvas,
@@ -374,7 +378,8 @@ static void draw_callback(Canvas* canvas, void* _ctx) {
             false);
         break;
     case PageHelpInfoConfig:
-        canvas_set_font(canvas, FontBatteryPercent);
+        //canvas_set_font(canvas, FontBatteryPercent);
+        canvas_set_font(canvas, FontSecondary);  // FontBatteryPercent -> FontSecondary
         canvas_draw_str_aligned(canvas, 124, 12, AlignRight, AlignBottom, "Help");
         elements_text_box(
             canvas,
@@ -390,7 +395,8 @@ static void draw_callback(Canvas* canvas, void* _ctx) {
             false);
         break;
     case PageAboutCredits:
-        canvas_set_font(canvas, FontBatteryPercent);
+        //canvas_set_font(canvas, FontBatteryPercent);
+        canvas_set_font(canvas, FontSecondary);  // FontBatteryPercent -> FontSecondary
         canvas_draw_str_aligned(canvas, 124, 12, AlignRight, AlignBottom, "Credits");
         elements_text_box(
             canvas,
@@ -414,7 +420,8 @@ static void draw_callback(Canvas* canvas, void* _ctx) {
         }
         char str[32];
 
-        canvas_set_font(canvas, FontBatteryPercent);
+        //canvas_set_font(canvas, FontBatteryPercent);
+        canvas_set_font(canvas, FontSecondary);  // FontBatteryPercent -> FontSecondary
         if(payload->mode == PayloadModeBruteforce) {
             snprintf(
                 str,
@@ -426,10 +433,11 @@ static void draw_callback(Canvas* canvas, void* _ctx) {
             snprintf(str, sizeof(str), "%ims", delays[state->delay]);
         }
         canvas_draw_str_aligned(canvas, 116, 12, AlignRight, AlignBottom, str);
-        canvas_draw_icon(canvas, 119, 6, &I_SmallArrowUp_3x5);
-        canvas_draw_icon(canvas, 119, 10, &I_SmallArrowDown_3x5);
+// canvas_draw_icon(canvas, 119, 6, &I_SmallArrowUp_3x5);
+// canvas_draw_icon(canvas, 119, 10, &I_SmallArrowDown_3x5);
 
-        canvas_set_font(canvas, FontBatteryPercent);
+        //canvas_set_font(canvas, FontBatteryPercent);
+        canvas_set_font(canvas, FontSecondary);  // FontBatteryPercent -> FontSecondary
         if(payload->mode == PayloadModeBruteforce) {
             canvas_draw_str_aligned(canvas, 64, 22, AlignCenter, AlignBottom, "Bruteforce");
             if(delays[state->delay] < 100) {
@@ -477,10 +485,10 @@ static void draw_callback(Canvas* canvas, void* _ctx) {
         canvas_set_font(canvas, FontSecondary);
         elements_bold_rounded_frame(canvas, 14, 8, 99, 48);
         elements_multiline_text(canvas, 65, 26, "To unlock\npress:");
-        canvas_draw_icon(canvas, 65, 42, &I_Pin_back_arrow_10x8);
-        canvas_draw_icon(canvas, 80, 42, &I_Pin_back_arrow_10x8);
-        canvas_draw_icon(canvas, 95, 42, &I_Pin_back_arrow_10x8);
-        canvas_draw_icon(canvas, 16, 13, &I_WarningDolphin_45x42);
+// canvas_draw_icon(canvas, 65, 42, &I_Pin_back_arrow_10x8);
+// canvas_draw_icon(canvas, 80, 42, &I_Pin_back_arrow_10x8);
+// canvas_draw_icon(canvas, 95, 42, &I_Pin_back_arrow_10x8);
+// canvas_draw_icon(canvas, 16, 13, &I_WarningDolphin_45x42);
         canvas_draw_dot(canvas, 17, 61);
     }
 }
